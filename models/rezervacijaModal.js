@@ -4,13 +4,13 @@ const rezervacijaSchema = mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      required: true,
       ref: "User",
+      required: true,
     },
     panel: {
       type: mongoose.Schema.Types.ObjectId,
-      required: true,
       ref: "Panel",
+      required: true,
     },
     cijena: {
       type: Number,

@@ -1,6 +1,7 @@
 import asyncHandler from "express-async-handler";
 import Lokacija from "../models/lokacijaModal.js";
 import Panel from "../models/panelModal.js";
+import Rezervacija from "../models/rezervacijaModal.js";
 
 //Dohvacanje jedne lokacije
 const getLocation = asyncHandler(async (req, res) => {
@@ -116,6 +117,7 @@ const getPanelById = asyncHandler(async (req, res) => {
   const panel = await Panel.findById(req.params.id);
 
   if (panel) {
+    vrijeme();
     res.json(panel);
   } else {
     res.status(404);
@@ -127,6 +129,7 @@ const getPanels = asyncHandler(async (req, res) => {
   const panel = await Panel.find({});
 
   if (panel) {
+    vrijeme();
     res.json(panel);
   } else {
     res.status(404);
@@ -170,6 +173,58 @@ const deletePanel = asyncHandler(async (req, res) => {
   }
 });
 
+const addRezervacija = asyncHandler(async (req, res) => {
+  const { user, panel, cijena, odDatuma, doDatuma } = req.body;
+  const pane = await Panel.findById(req.params.id);
+
+  if (pane) {
+    if (parseInt(pane.brojMjesta) === 0) {
+      throw new Error("Broj mjesta za reklamu je popunjen");
+    } else {
+      const rezervacija = await Rezervacija.create({
+        user,
+        panel,
+        cijena,
+        odDatuma,
+        doDatuma,
+      });
+      if (rezervacija) {
+        pane.brojMjesta = parseInt(pane.brojMjesta) - 1;
+        const panelMjesta = await pane.save();
+        res.status(201).json({
+          user,
+          panel,
+          cijena,
+          odDatuma,
+          doDatuma,
+        });
+      } else {
+        res.status(400);
+        throw new Error("Greška prilikom rezerviranja  panela");
+      }
+    }
+  } else {
+    res.status(404);
+    throw new Error("Panel ne postoji");
+  }
+});
+
+const vrijeme = asyncHandler(async (req, res) => {
+  const rez = await Rezervacija.findById({ _id: "6005d9ad3c371f01fc8e9119" });
+
+  if (rez) {
+    if (rez.doDatuma < new Date()) {
+      console.log(rez.doDatuma);
+      console.log(new Date().toISOString());
+      console.log("Istekla rezervacija");
+    } else {
+      console.log(rez.doDatuma);
+      console.log("Drugo rihe " + new Date().toISOString());
+      console.log("Traje jos rezervacija");
+    }
+  }
+});
+
 export {
   getLocation,
   getLocations,
@@ -181,4 +236,5 @@ export {
   getPanels,
   updatePanel,
   deletePanel,
+  addRezervacija,
 };

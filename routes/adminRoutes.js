@@ -12,6 +12,7 @@ import {
   getPanels,
   updatePanel,
   deletePanel,
+  addRezervacija,
 } from "../controllers/adminController.js";
 
 import { protect, admin } from "../middleware/authMiddleware.js";
@@ -32,7 +33,10 @@ router
 router
   .route("/paneli")
   .post(protect, admin, addPanel) //radi
-  .get(getPanels); //radi
+  .get(getPanels) //radi
+  .post(protect, addRezervacija);
+
+router.route("/paneli/:id/dodavanjeRezervacije").post(protect, addRezervacija);
 
 router
   .route("/paneli/:id")
