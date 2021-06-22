@@ -129,7 +129,6 @@ const getPanels = asyncHandler(async (req, res) => {
   const panel = await Panel.find({});
 
   if (panel) {
-    vrijeme();
     res.json(panel);
   } else {
     res.status(404);
@@ -181,6 +180,7 @@ const addRezervacija = asyncHandler(async (req, res) => {
     if (parseInt(pane.brojMjesta) === 0) {
       throw new Error("Broj mjesta za reklamu je popunjen");
     } else {
+      //Stvara novu rezervaciju
       const rezervacija = await Rezervacija.create({
         user,
         panel,
@@ -210,20 +210,34 @@ const addRezervacija = asyncHandler(async (req, res) => {
 });
 
 const vrijeme = asyncHandler(async (req, res) => {
-  const rez = await Rezervacija.findById({ _id: "6005d9ad3c371f01fc8e9119" });
-
+  const rez = await Rezervacija.findById({
+    _id: "6005d9ad3c371f01fc8e9119",
+  }).populate("panel");
+  console.log("ID od rezerviranog panela : " + rez.panel._id);
+  const panel = await Panel.findById(rez.panel._id);
   if (rez) {
     if (rez.doDatuma < new Date()) {
       console.log(rez.doDatuma);
-      console.log(new Date().toISOString());
+      console.log("Trenutni datum : " + new Date().toISOString());
       console.log("Istekla rezervacija");
+      //SLJEDI KOD ZA POVECANJE SLOBODNIH MJESTA
+
+      panel.brojMjesta = parseInt(panel.brojMjesta) + 1;
+      const panelMjesta = await panel.save();
     } else {
       console.log(rez.doDatuma);
-      console.log("Drugo rihe " + new Date().toISOString());
+      console.log("Trenutni datum : " + new Date().toISOString());
       console.log("Traje jos rezervacija");
     }
   }
 });
+
+function provjeraRezervacije() {
+  console.log("ccc");
+  vrijeme();
+}
+
+setInterval(provjeraRezervacije, 100000);
 
 export {
   getLocation,

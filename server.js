@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 const app = express();
 import userRoutes from "./routes/userRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
+
 dotenv.config();
 
 //DB config
